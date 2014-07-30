@@ -77,10 +77,6 @@ class App < Sinatra::Application
   post "/fish" do
     if validate_fish_params
       Fish.create(name: params[:name], wikipedia_page: params[:wikipedia_page], user_id: current_user[:id])
-      # insert_sql = <<-SQL
-      # INSERT INTO fish (name, wikipedia_page, user_id)
-      # VALUES ('#{params[:name]}', '#{params[:wikipedia_page]}', #{current_user["id"]})
-      # SQL
 
       flash[:notice] = "Fish Created"
 
@@ -159,18 +155,13 @@ class App < Sinatra::Application
   end
 
   def username_available?(username)
-    existing_users = @database_connection.sql("SELECT * FROM users where username = '#{username}'")
+    existing_users = User.where("username = ?", username)
 
     existing_users.length == 0
   end
 
   def authenticate_user
-    select_sql = <<-SQL
-    SELECT * FROM users
-    WHERE username = '#{params[:username]}' AND password = '#{params[:password]}'
-    SQL
-
-    @database_connection.sql(select_sql).first
+   User.where(:username => params[:username], :password => params[:password]).take
   end
 
   def current_user
