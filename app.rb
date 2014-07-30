@@ -70,18 +70,17 @@ class App < Sinatra::Application
   end
 
   get "/fish/:id" do
-    fish = @database_connection.sql("SELECT * FROM fish WHERE id = #{params[:id]}").first
+    fish = Fish.where(:id => params[:id])
     erb :"fish/show", locals: {fish: fish}
   end
 
   post "/fish" do
     if validate_fish_params
-      insert_sql = <<-SQL
-      INSERT INTO fish (name, wikipedia_page, user_id)
-      VALUES ('#{params[:name]}', '#{params[:wikipedia_page]}', #{current_user["id"]})
-      SQL
-
-      @database_connection.sql(insert_sql)
+      Fish.create(name: params[:name], wikipedia_page: params[:wikipedia_page], user_id: current_user[:id])
+      # insert_sql = <<-SQL
+      # INSERT INTO fish (name, wikipedia_page, user_id)
+      # VALUES ('#{params[:name]}', '#{params[:wikipedia_page]}', #{current_user["id"]})
+      # SQL
 
       flash[:notice] = "Fish Created"
 
