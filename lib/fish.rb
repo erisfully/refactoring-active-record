@@ -1,5 +1,5 @@
 require "active_record"
 
 class Fish < ActiveRecord::Base
-  belongs_to :users
+  belongs_to :user
 end

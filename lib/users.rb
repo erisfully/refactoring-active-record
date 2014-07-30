@@ -1,5 +1,5 @@
 require "active_record"
 
-class Users < ActiveRecord::Base
-
+class User < ActiveRecord::Base
+  has_one :fish
 end
