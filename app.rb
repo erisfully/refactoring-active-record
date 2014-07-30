@@ -19,7 +19,7 @@ class App < Sinatra::Application
 
     if current_user
       users = User.where("id != ?", user[:id])
-      fish = Fish.where("user_id = ?", user[:id])
+      fish = Fish.where(:user_id => user[:id])
       erb :signed_in, locals: {current_user: user, users: users, fish_list: fish}
     else
       erb :signed_out
@@ -32,13 +32,7 @@ class App < Sinatra::Application
 
   post "/registrations" do
     if validate_registration_params
-      insert_sql = <<-SQL
-      INSERT INTO users (username, password)
-      VALUES ('#{params[:username]}', '#{params[:password]}')
-      SQL
-
-      @database_connection.sql(insert_sql)
-
+      User.create(username: params[:username], password: params[:password])
       flash[:notice] = "Thanks for registering"
       redirect "/"
     else
@@ -66,12 +60,7 @@ class App < Sinatra::Application
   end
 
   delete "/users/:id" do
-    delete_sql = <<-SQL
-    DELETE FROM users
-    WHERE id = #{params[:id]}
-    SQL
-
-    @database_connection.sql(delete_sql)
+    User.where(:id => params[:id]).destroy_all
 
     redirect "/"
   end
